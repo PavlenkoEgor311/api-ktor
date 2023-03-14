@@ -1,5 +1,6 @@
 package com.example.plugins
 
+import com.example.data.model.note.NoteDataSource
 import com.example.data.model.user.UserDataSource
 import com.example.routes.*
 import com.example.security.hashing.HashingService
@@ -10,6 +11,7 @@ import io.ktor.server.application.*
 
 fun Application.configureRouting(
     userDataSource: UserDataSource,
+    noteDataSource: NoteDataSource,
     hashingService: HashingService,
     tokenService: TokenService,
     tokenConfig: TokenConfig,
@@ -19,14 +21,14 @@ fun Application.configureRouting(
             hashingService = hashingService,
             userDataSource = userDataSource,
         )
-        signIn(
-            userDataSource,
-            hashingService,
-            tokenService,
-            tokenConfig,
-        )
+        signIn(userDataSource, hashingService, tokenService, tokenConfig)
         getSecretInfo()
         getAllUsers(userDataSource)
         getUserByID(userDataSource)
+        getAllNotes(noteDataSource)
+        insertNote(noteDataSource)
+        updateUser(userDataSource, hashingService)
+        getNotesUser(noteDataSource)
+        updateNote(noteDataSource)
     }
 }

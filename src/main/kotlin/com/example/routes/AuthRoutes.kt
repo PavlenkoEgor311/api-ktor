@@ -3,6 +3,7 @@ package com.example.routes
 import com.example.data.model.User
 import com.example.data.model.user.UserDataSource
 import com.example.data.model.user.request.AuthRequest
+import com.example.data.model.user.request.UpdateUserRequest
 import com.example.data.model.user.response.AuthResponse
 import com.example.security.hashing.HashingService
 import com.example.security.hashing.SaltHash
@@ -13,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -114,7 +116,6 @@ fun Route.signIn(
     }
 }
 
-
 fun Route.getAllUsers(
     userDataSource: UserDataSource
 ) {
@@ -144,8 +145,8 @@ fun Route.getAllUsers(
 fun Route.getUserByID(
     userDataSource: UserDataSource,
 ) {
-    get("getUserById/{id}") {
-        val id = call.parameters["id"]?.toLongOrNull()
+    get("getUserById") {
+        val id = call.request.queryParameters["id"]?.toLongOrNull()
         if (id == null) {
             call.respond(HttpStatusCode.BadRequest, "Invalid user ID")
             return@get
@@ -167,5 +168,27 @@ fun Route.getUserByID(
                 })
             })
         }
+    }
+}
+
+fun Route.updateUser(
+    userDataSource: UserDataSource,
+    hashingService: HashingService
+) {
+    post("updateuser") {
+        val request = call.receiveOrNull<UpdateUserRequest>() ?: kotlin.run {
+            call.respond(HttpStatusCode.BadRequest, "Упс")
+            return@post
+        }
+        if (request.login.isNullOrEmpty() ||
+            request.username.isNullOrEmpty() ||
+            request.password.isNullOrEmpty()
+        ) return@post call.respond(HttpStatusCode.BadRequest, "Not valid user data")
+
+        val respond = userDataSource.updateUserData(request, hashingService)
+        if (respond.matchedCount > 0)
+            call.respond(HttpStatusCode.OK, "Success update user")
+        else
+            call.respond(HttpStatusCode.BadRequest, "Not valid")
     }
 }

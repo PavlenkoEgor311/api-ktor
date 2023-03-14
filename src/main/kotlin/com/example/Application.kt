@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.data.model.note.NoteDataSource
 import com.example.data.model.user.UserDataSource
 import io.ktor.server.application.*
 import com.example.plugins.*
@@ -12,9 +13,6 @@ import org.litote.kmongo.reactivestreams.KMongo
 fun main(args: Array<String>): Unit =
     io.ktor.server.netty.EngineMain.main(args)
 
-
-//val mongoPass = System.getenv("MONGO_PASS")
-
 @Suppress("unused")
 fun Application.module() {
     val mongodb = "my_note"
@@ -25,6 +23,8 @@ fun Application.module() {
         .getDatabase(mongodb)
 
     val userDataSource = UserDataSource(db)
+    val noteDataSource = NoteDataSource(db)
+
     val tokenService = TokenService()
     val tokenConfig = TokenConfig(
         issuer = environment.config.property("jwt.issuer").toString(),
@@ -41,5 +41,6 @@ fun Application.module() {
         hashingService = hashingService,
         tokenService = tokenService,
         tokenConfig = tokenConfig,
+        noteDataSource = noteDataSource,
     )
 }

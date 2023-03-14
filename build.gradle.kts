@@ -37,10 +37,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 
     implementation("io.ktor:ktor-server-netty:$ktor_version")
-//    implementation("io.ktor:ktor-jackson:$ktor_version")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
-//    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_version")
     implementation("org.litote.kmongo:kmongo-coroutine:$kmongo_version")
     implementation("commons-codec:commons-codec:$commons_codec_version")
 }

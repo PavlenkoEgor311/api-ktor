@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "build/install/api-note/bin/api-note",
+      "src": "build/install/api-note",
       "use": "@vercel/static-build"
     }
   ],
   "routes": [
     {
       "src": "/api/.*",
-      "dest": "build/install/api-note/bin/api-note"
+      "dest": "build/install/api-note"
     }
   ]
 }

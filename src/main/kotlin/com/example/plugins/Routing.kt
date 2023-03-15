@@ -30,5 +30,6 @@ fun Application.configureRouting(
         updateUser(userDataSource, hashingService)
         getNotesUser(noteDataSource)
         updateNote(noteDataSource)
+        test()
     }
 }

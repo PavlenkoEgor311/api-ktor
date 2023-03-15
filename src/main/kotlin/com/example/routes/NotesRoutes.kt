@@ -118,3 +118,9 @@ fun Route.updateNote(noteDataSource: NoteDataSource) {
     }
 }
 
+fun Route.test() {
+    get("test") {
+        call.respondText("Hello, дебил!")
+    }
+}
+

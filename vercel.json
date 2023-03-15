@@ -1,15 +1,13 @@
 {
   "version": 2,
+  "name": "api-note",
   "builds": [
-    {
-      "src": "build/install/api-note",
-      "use": "@vercel/static-build"
-    }
+    { "src": "build/distributions/*.zip", "use": "@vercel/static" }
   ],
   "routes": [
-    {
-      "src": "/api/.*",
-      "dest": "build/install/api-note"
-    }
-  ]
+    { "src": "/(.*)", "dest": "/build/distributions/$1" }
+  ],
+  "env": {
+    "MY_ENV_VAR": "my_value"
+  }
 }

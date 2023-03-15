@@ -174,7 +174,7 @@ fun Route.getUserByID(
 fun Route.updateUser(
     userDataSource: UserDataSource,
     hashingService: HashingService
-) {
+)  {
     post("updateuser") {
         val request = call.receiveOrNull<UpdateUserRequest>() ?: kotlin.run {
             call.respond(HttpStatusCode.BadRequest, "Упс")

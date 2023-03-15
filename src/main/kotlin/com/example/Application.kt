@@ -7,11 +7,12 @@ import com.example.plugins.*
 import com.example.security.hashing.SHA256HashingService
 import com.example.security.token.TokenConfig
 import com.example.security.token.TokenService
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 
-fun main(args: Array<String>): Unit =
-    io.ktor.server.netty.EngineMain.main(args)
+fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 @Suppress("unused")
 fun Application.module() {

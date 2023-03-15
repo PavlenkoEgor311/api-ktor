@@ -31,5 +31,6 @@ fun Application.configureRouting(
         getNotesUser(noteDataSource)
         updateNote(noteDataSource)
         test()
+        updateFriendList(userDataSource)
     }
 }

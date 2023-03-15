@@ -1,9 +1,11 @@
 package com.example.data.model.user
 
 import com.example.data.model.User
+import com.example.data.model.user.request.UpdateUserFriendsRequest
 import com.example.data.model.user.request.UpdateUserRequest
 import com.example.security.hashing.HashingService
 import com.mongodb.client.model.UpdateOptions
+import com.mongodb.client.result.DeleteResult
 import com.mongodb.client.result.UpdateResult
 import io.ktor.server.plugins.*
 import org.litote.kmongo.coroutine.CoroutineDatabase
@@ -31,4 +33,27 @@ class UserDataSource(db: CoroutineDatabase) : IUserDataSource {
             )
         } else throw NotFoundException()
     }
+    override suspend fun addFriend(id: Long, friend: UpdateUserFriendsRequest): UpdateResult {
+        val user = users.findOne(User::id eq id)
+        if (user != null) {
+            user.listIdFriend.add(friend.idFriend)
+            return users.updateOne(
+                filter = User::id eq user.id,
+                target = user,
+                options = UpdateOptions().upsert(false)
+            )
+        } else throw NotFoundException()
+    }
+    override suspend fun delFriend(id: Long, friend: UpdateUserFriendsRequest): UpdateResult {
+        val user = users.findOne(User::id eq id)
+        if (user != null) {
+            user.listIdFriend.remove(friend.idFriend)
+            return users.updateOne(
+                filter = User::id eq user.id,
+                target = user,
+                options = UpdateOptions().upsert(false)
+            )
+        } else throw NotFoundException()
+    }
+    override suspend fun delUser(id: Long): DeleteResult = users.deleteOne(User::id eq id)
 }

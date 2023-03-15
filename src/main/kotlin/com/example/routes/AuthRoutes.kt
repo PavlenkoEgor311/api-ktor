@@ -3,6 +3,7 @@ package com.example.routes
 import com.example.data.model.User
 import com.example.data.model.user.UserDataSource
 import com.example.data.model.user.request.AuthRequest
+import com.example.data.model.user.request.UpdateUserFriendsRequest
 import com.example.data.model.user.request.UpdateUserRequest
 import com.example.data.model.user.response.AuthResponse
 import com.example.security.hashing.HashingService
@@ -47,7 +48,7 @@ fun Route.singup(
             userPassword = saltHash.hash,
             salt = saltHash.salt,
             login = request.login,
-            listIdFriend = listOf(3481136338176530394),
+            listIdFriend = mutableListOf(3481136338176530394),
         )
         val wasAcknowledged = userDataSource.insertUser(user)
         if (!wasAcknowledged) {
@@ -174,7 +175,7 @@ fun Route.getUserByID(
 fun Route.updateUser(
     userDataSource: UserDataSource,
     hashingService: HashingService
-)  {
+) {
     post("updateuser") {
         val request = call.receiveOrNull<UpdateUserRequest>() ?: kotlin.run {
             call.respond(HttpStatusCode.BadRequest, "Упс")
@@ -190,5 +191,43 @@ fun Route.updateUser(
             call.respond(HttpStatusCode.OK, "Success update user")
         else
             call.respond(HttpStatusCode.BadRequest, "Not valid")
+    }
+}
+
+fun Route.updateFriendList(userDataSource: UserDataSource) {
+    delete("deleteFriend") {
+        val request = call.receiveOrNull<UpdateUserFriendsRequest>() ?: kotlin.run {
+            call.respond(HttpStatusCode.BadRequest, "Упс")
+            return@delete
+        }
+        val id = call.request.queryParameters["id"]?.toLongOrNull()
+        if (id == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid user ID")
+            return@delete
+        }
+        val respond = userDataSource.delFriend(id, request)
+        if (respond.matchedCount > 0) {
+            call.respond(HttpStatusCode.OK, "Success delete friend")
+        } else {
+            call.respond(HttpStatusCode.BadRequest, "Invalid data")
+        }
+
+    }
+    put("addFriend") {
+        val request = call.receiveOrNull<UpdateUserFriendsRequest>() ?: kotlin.run {
+            call.respond(HttpStatusCode.BadRequest, "Упс")
+            return@put
+        }
+        val id = call.request.queryParameters["id"]?.toLongOrNull()
+        if (id == null) {
+            call.respond(HttpStatusCode.BadRequest, "Invalid user ID")
+            return@put
+        }
+        val respond = userDataSource.addFriend(id, request)
+        if (respond.matchedCount > 0) {
+            call.respond(HttpStatusCode.OK, "Success add friend")
+        } else {
+            call.respond(HttpStatusCode.BadRequest, "Invalid data")
+        }
     }
 }

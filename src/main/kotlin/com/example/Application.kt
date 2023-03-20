@@ -7,6 +7,8 @@ import com.example.plugins.*
 import com.example.security.hashing.SHA256HashingService
 import com.example.security.token.TokenConfig
 import com.example.security.token.TokenService
+import com.google.firebase.FirebaseApp
+import com.google.firestore.v1.StructuredQuery.FieldReference
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.litote.kmongo.coroutine.coroutine
@@ -16,6 +18,8 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 @Suppress("unused")
 fun Application.module() {
+
+
     val mongodb = "my_note"
     val db = KMongo.createClient(
         connectionString = "mongodb+srv://EgorAdmin:1qwertyY@atlascluster.sxtjrng.mongodb.net/$mongodb?retryWrites=true&w=majority"

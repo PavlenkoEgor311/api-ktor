@@ -9,4 +9,5 @@ data class User(
     var salt: String,
     var login: String,
     val listIdFriend: MutableList<Long>,
+    val listIdNote: MutableList<Long>,
 )

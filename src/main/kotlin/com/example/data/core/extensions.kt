@@ -8,3 +8,7 @@ fun GlobalNote.isValid(): Boolean {
             && this.status.isNotEmpty()
             && this.date.isNotEmpty())
 }
+
+fun <T> concatenate(vararg lists: List<T>): List<T> {
+    return listOf(*lists).flatten()
+}

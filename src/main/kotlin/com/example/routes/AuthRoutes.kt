@@ -48,7 +48,8 @@ fun Route.singup(
             userPassword = saltHash.hash,
             salt = saltHash.salt,
             login = request.login,
-            listIdFriend = mutableListOf(3481136338176530394),
+            listIdFriend = mutableListOf(),
+            listIdNote = mutableListOf(),
         )
         val wasAcknowledged = userDataSource.insertUser(user)
         if (!wasAcknowledged) {

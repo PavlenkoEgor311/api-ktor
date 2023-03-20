@@ -9,4 +9,5 @@ interface IDataNoteSource {
     suspend fun updateNote(newNote: GlobalNote): UpdateResult
     suspend fun getNotesUser(id: Long): List<GlobalNote>
     suspend fun getNoteById(id: Long): GlobalNote?
+    suspend fun addNewNote(idUser: Long, note: GlobalNote): UpdateResult
 }

@@ -44,6 +44,6 @@ dependencies {
     implementation("commons-codec:commons-codec:$commons_codec_version")
 
     implementation("com.google.firebase:firebase-admin:$firebase_version")
-    //implementation("com.google.firebase:firebase-functions:$firebase_version")
-    //implementation ("com.google.firebase:firebase-functions:8.1.0")
+    implementation("com.google.firebase:firebase-functions:$firebase_version")
+
 }

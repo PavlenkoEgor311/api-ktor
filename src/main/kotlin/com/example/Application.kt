@@ -19,7 +19,7 @@ fun main(args: Array<String>): Unit = EngineMain.main(args)
 @Suppress("unused")
 fun Application.module() {
 
-
+    FirebaseApp.initializeApp()
     val mongodb = "my_note"
     val db = KMongo.createClient(
         connectionString = "mongodb+srv://EgorAdmin:1qwertyY@atlascluster.sxtjrng.mongodb.net/$mongodb?retryWrites=true&w=majority"

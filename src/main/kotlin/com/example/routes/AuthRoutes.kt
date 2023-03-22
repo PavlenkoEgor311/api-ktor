@@ -31,9 +31,9 @@ fun Route.singup(
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
-        val areFieldsBlank = request.userName.isBlank() || request.password.isBlank()
+        val areFieldsBlank = request.username.isBlank() || request.password.isBlank()
         val passShort = request.password.length < 8
-        if (userDataSource.getUserName(request.userName) != null) {
+        if (userDataSource.getUserName(request.username) != null) {
             call.respond(HttpStatusCode.Conflict, "Username is already exists pizda")
             return@post
         }
@@ -43,7 +43,7 @@ fun Route.singup(
         }
         val saltHash = hashingService.generateSaltHash(request.password)
         val user = User(
-            userName = request.userName,
+            username = request.username,
             userPassword = saltHash.hash,
             salt = saltHash.salt,
             login = request.login,
@@ -80,7 +80,7 @@ fun Route.signIn(
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
-        val user = userDataSource.getUserName(request.userName)
+        val user = userDataSource.getUserName(request.username)
         if (user == null) {
             call.respond(HttpStatusCode.Conflict, "Incorrect username or password")
             return@post
@@ -126,7 +126,7 @@ fun Route.getAllUsers(
                 users.forEach {
                     add(buildJsonObject {
                         put("id", it.id)
-                        put("username", it.userName)
+                        put("username", it.username)
                         put("userpassword", it.userPassword)
                         put("friendsID", buildJsonArray {
                             it.listIdFriend.forEach { id ->
@@ -157,7 +157,7 @@ fun Route.getUserByID(
         } else {
             call.respond(HttpStatusCode.OK, buildJsonObject {
                 put("id", user.id)
-                put("username", user.userName)
+                put("username", user.username)
                 put("login", user.login)
                 put("friendsId", buildJsonArray {
                     user.listIdFriend.forEach {

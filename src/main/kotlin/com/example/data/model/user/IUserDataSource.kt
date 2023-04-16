@@ -11,4 +11,6 @@ interface IUserDataSource {
     suspend fun getAllUsers(): List<User>
     suspend fun getUserById(id: Long): User?
     suspend fun updateUserData(user: UpdateUserRequest, hashingService: HashingService): UpdateResult
+    suspend fun addFriendUser(idUser: Long, idFriend: Long): UpdateResult
+    suspend fun delFriendUser(idUser: Long, idFriend: Long): UpdateResult
 }

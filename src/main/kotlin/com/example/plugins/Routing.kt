@@ -1,6 +1,7 @@
 package com.example.plugins
 
 import com.example.data.model.note.NoteDataSource
+import com.example.data.model.notification.NotificationDataSource
 import com.example.data.model.user.UserDataSource
 import com.example.routes.*
 import com.example.security.hashing.HashingService
@@ -15,6 +16,7 @@ fun Application.configureRouting(
     hashingService: HashingService,
     tokenService: TokenService,
     tokenConfig: TokenConfig,
+    notificationDataSource: NotificationDataSource,
 ) {
     routing {
         singup(
@@ -26,10 +28,11 @@ fun Application.configureRouting(
         getAllUsers(userDataSource)
         getUserByID(userDataSource)
         getAllNotes(noteDataSource)
-        insertNote(noteDataSource)
+        insertNote(noteDataSource, notificationDataSource)
         updateUser(userDataSource, hashingService)
         getNotesUser(noteDataSource)
-        updateNote(noteDataSource)
+        updateNote(noteDataSource, notificationDataSource)
         test()
+        updateListFriend(userDataSource, notificationDataSource)
     }
 }

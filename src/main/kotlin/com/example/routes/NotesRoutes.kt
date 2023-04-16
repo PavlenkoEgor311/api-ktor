@@ -1,8 +1,11 @@
 package com.example.routes
 
+import com.example.data.core.generateUniqueId
 import com.example.data.core.isValid
 import com.example.data.model.GlobalNote
+import com.example.data.model.Notification
 import com.example.data.model.note.NoteDataSource
+import com.example.data.model.notification.NotificationDataSource
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -44,8 +47,8 @@ fun Route.getAllNotes(noteDataSource: NoteDataSource) {
     }
 }
 
-fun Route.insertNote(noteSource: NoteDataSource) {
-    post("setnote") {
+fun Route.insertNote(noteSource: NoteDataSource, notificationDataSource: NotificationDataSource) {
+    post("insertNote") {
         val note = call.receiveOrNull<GlobalNote>() ?: kotlin.run {
             call.respond(HttpStatusCode.BadRequest, "Not valid note")
             return@post
@@ -58,6 +61,17 @@ fun Route.insertNote(noteSource: NoteDataSource) {
         if (!wasAcknowledged) {
             call.respond(HttpStatusCode.BadRequest)
         } else {
+            note.friendsId?.forEach { userId ->
+                notificationDataSource.insertNotification(
+                    Notification(
+                        id = generateUniqueId(),
+                        userId = userId,
+                        type = 1,
+                        body = "Новая коллективная задача. Проверьте список задач",
+                        isShow = false,
+                    )
+                )
+            }
             call.respond(HttpStatusCode.OK)
         }
     }
@@ -101,7 +115,7 @@ fun Route.getNotesUser(noteDataSource: NoteDataSource) {
     }
 }
 
-fun Route.updateNote(noteDataSource: NoteDataSource) {
+fun Route.updateNote(noteDataSource: NoteDataSource, notificationDataSource: NotificationDataSource) {
     post("updateNote") {
         val request = call.receiveOrNull<GlobalNote>() ?: kotlin.run {
             call.respond(HttpStatusCode.BadRequest)
@@ -111,9 +125,20 @@ fun Route.updateNote(noteDataSource: NoteDataSource) {
             return@post call.respond(HttpStatusCode.BadRequest, "Not valid note")
 
         val respond = noteDataSource.updateNote(request)
-        if (respond.matchedCount > 0)
+        if (respond.matchedCount > 0) {
+            request.friendsId?.forEach { id ->
+                notificationDataSource.insertNotification(
+                    Notification(
+                        id = generateUniqueId(),
+                        userId = id,
+                        type = 2,
+                        body = "Обновление коллективной задачи. Проверьте изменения.",
+                        isShow = false,
+                    )
+                )
+            }
             call.respond(HttpStatusCode.OK, "Success update note")
-        else
+        } else
             call.respond(HttpStatusCode.BadRequest, "Not valid")
     }
 }

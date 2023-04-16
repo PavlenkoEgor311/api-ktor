@@ -11,6 +11,6 @@ data class GlobalNote(
     var description: String,
     var date: String,
     var status: String,
-    var friendsId: List<Long>?,
-    var files: List<Int>?,
+    var friendsId: MutableList<Long>?,
+    var files: MutableList<Int>?,
 )

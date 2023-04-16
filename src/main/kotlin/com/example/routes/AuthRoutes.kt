@@ -1,8 +1,12 @@
 package com.example.routes
 
+import com.example.data.core.generateUniqueId
+import com.example.data.model.Notification
 import com.example.data.model.User
+import com.example.data.model.notification.NotificationDataSource
 import com.example.data.model.user.UserDataSource
 import com.example.data.model.user.request.AuthRequest
+import com.example.data.model.user.request.UpdateUserFriendsRequest
 import com.example.data.model.user.request.UpdateUserRequest
 import com.example.data.model.user.response.AuthResponse
 import com.example.security.hashing.HashingService
@@ -14,7 +18,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -31,10 +34,10 @@ fun Route.singup(
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
-        val areFieldsBlank = request.username.isBlank() || request.password.isBlank()
+        val areFieldsBlank = request.userName.isBlank() || request.password.isBlank()
         val passShort = request.password.length < 8
-        if (userDataSource.getUserName(request.username) != null) {
-            call.respond(HttpStatusCode.Conflict, "Username is already exists pizda")
+        if (userDataSource.getUserName(request.userName) != null) {
+            call.respond(HttpStatusCode.Conflict, "Username is already exists")
             return@post
         }
         if (areFieldsBlank || passShort) {
@@ -43,11 +46,11 @@ fun Route.singup(
         }
         val saltHash = hashingService.generateSaltHash(request.password)
         val user = User(
-            username = request.username,
+            userName = request.userName,
             userPassword = saltHash.hash,
             salt = saltHash.salt,
             login = request.login,
-            listIdFriend = listOf(3481136338176530394),
+            listIdFriend = mutableListOf(-5887109794254237724),
         )
         val wasAcknowledged = userDataSource.insertUser(user)
         if (!wasAcknowledged) {
@@ -55,6 +58,7 @@ fun Route.singup(
             return@post
         } else {
             call.respond(HttpStatusCode.OK)
+            return@post
         }
     }
 }
@@ -64,7 +68,7 @@ fun Route.getSecretInfo() {
         get("secret") {
             val principal = call.principal<JWTPrincipal>()
             val userId = principal?.getClaim("userId", String::class)
-            call.respond(HttpStatusCode.OK, "Your id: $userId")
+            return@get call.respond(HttpStatusCode.OK, "Your id: $userId")
         }
     }
 }
@@ -80,7 +84,7 @@ fun Route.signIn(
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
-        val user = userDataSource.getUserName(request.username)
+        val user = userDataSource.getUserName(request.userName)
         if (user == null) {
             call.respond(HttpStatusCode.Conflict, "Incorrect username or password")
             return@post
@@ -126,7 +130,7 @@ fun Route.getAllUsers(
                 users.forEach {
                     add(buildJsonObject {
                         put("id", it.id)
-                        put("username", it.username)
+                        put("username", it.userName)
                         put("userpassword", it.userPassword)
                         put("friendsID", buildJsonArray {
                             it.listIdFriend.forEach { id ->
@@ -151,13 +155,14 @@ fun Route.getUserByID(
             call.respond(HttpStatusCode.BadRequest, "Invalid user ID")
             return@get
         }
+
         val user = userDataSource.getUserById(id)
         if (user == null) {
             call.respond(HttpStatusCode.NotFound, "User not found")
         } else {
             call.respond(HttpStatusCode.OK, buildJsonObject {
                 put("id", user.id)
-                put("username", user.username)
+                put("username", user.userName)
                 put("login", user.login)
                 put("friendsId", buildJsonArray {
                     user.listIdFriend.forEach {
@@ -174,16 +179,17 @@ fun Route.getUserByID(
 fun Route.updateUser(
     userDataSource: UserDataSource,
     hashingService: HashingService
-)  {
-    post("updateuser") {
+) {
+    post("updateUser") {
         val request = call.receiveOrNull<UpdateUserRequest>() ?: kotlin.run {
-            call.respond(HttpStatusCode.BadRequest, "Упс")
+            call.respond(HttpStatusCode.BadRequest, "Not valid")
             return@post
         }
         if (request.login.isNullOrEmpty() ||
             request.username.isNullOrEmpty() ||
             request.password.isNullOrEmpty()
-        ) return@post call.respond(HttpStatusCode.BadRequest, "Not valid user data")
+        )
+            return@post call.respond(HttpStatusCode.BadRequest, "Not valid user data")
 
         val respond = userDataSource.updateUserData(request, hashingService)
         if (respond.matchedCount > 0)
@@ -192,3 +198,55 @@ fun Route.updateUser(
             call.respond(HttpStatusCode.BadRequest, "Not valid")
     }
 }
+
+fun Route.updateListFriend(userDataSource: UserDataSource, notificationDataSource: NotificationDataSource) {
+    patch("addFriend") {
+        try {
+            val request = call.receive<UpdateUserFriendsRequest>()
+            val respond = userDataSource.addFriendUser(request.idUser, request.idFriend)
+            if (respond.matchedCount > 0) {
+                notificationDataSource.insertNotification(
+                    Notification(
+                        id = generateUniqueId(),
+                        userId = request.idFriend,
+                        type = 2,
+                        body = "Обновление списка друзей",
+                        isShow = false,
+                    )
+                )
+                call.respond(HttpStatusCode.OK, "Пользователь успешно добавлен")
+            } else
+                call.respond(HttpStatusCode.Conflict, "Пользователь не добавлен. Попробуйте еще раз")
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Ошибка при десериализации тела запроса: ${e.message}")
+        }
+    }
+    delete("delFriend") {
+        try {
+            val request = call.receive<UpdateUserFriendsRequest>()
+            val respond = userDataSource.delFriendUser(request.idUser, request.idFriend)
+            if (respond.matchedCount > 0) {
+                notificationDataSource.insertNotification(
+                    Notification(
+                        id = generateUniqueId(),
+                        userId = request.idFriend,
+                        type = 2,
+                        body = "Обновление списка друзей",
+                        isShow = false,
+                    )
+                )
+                call.respond(HttpStatusCode.OK, "Пользователь успешно удален")
+            } else
+                call.respond(HttpStatusCode.Conflict, "Пользователь не удален. Попробуйте еще раз")
+        } catch (e: Exception) {
+            call.respond(HttpStatusCode.BadRequest, "Ошибка при десериализации тела запроса: ${e.message}")
+        }
+    }
+}
+
+//try {
+//    val myData = call.receive<MyData>()
+//    // делайте что-то с переменной myData
+//} catch (e: Exception) {
+//    call.respond(HttpStatusCode.BadRequest, "Ошибка при десериализации тела запроса: ${e.message}")
+//}

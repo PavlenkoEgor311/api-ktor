@@ -1,13 +1,13 @@
 package com.example
 
 import com.example.data.model.note.NoteDataSource
+import com.example.data.model.notification.NotificationDataSource
 import com.example.data.model.user.UserDataSource
 import io.ktor.server.application.*
 import com.example.plugins.*
 import com.example.security.hashing.SHA256HashingService
 import com.example.security.token.TokenConfig
 import com.example.security.token.TokenService
-import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
@@ -25,6 +25,7 @@ fun Application.module() {
 
     val userDataSource = UserDataSource(db)
     val noteDataSource = NoteDataSource(db)
+    val notificationDataSource = NotificationDataSource(db)
 
     val tokenService = TokenService()
     val tokenConfig = TokenConfig(
@@ -43,5 +44,6 @@ fun Application.module() {
         tokenService = tokenService,
         tokenConfig = tokenConfig,
         noteDataSource = noteDataSource,
+        notificationDataSource = notificationDataSource,
     )
 }

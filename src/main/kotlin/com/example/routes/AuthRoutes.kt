@@ -21,6 +21,8 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -125,7 +127,9 @@ fun Route.getAllUsers(
     userDataSource: UserDataSource
 ) {
     get("usersAll") {
-        val users = userDataSource.getAllUsers()
+        val users = withContext(Dispatchers.IO) {
+            userDataSource.getAllUsers()
+        }
         val json =
             buildJsonArray {
                 users.forEach {
@@ -225,29 +229,24 @@ fun Route.updateListFriend(userDataSource: UserDataSource, notificationDataSourc
     delete("delFriend") {
         try {
             val request = call.receive<UpdateUserFriendsRequest>()
-            val respond = userDataSource.delFriendUser(request.idUser, request.idFriend)
-            if (respond.matchedCount > 0) {
-                notificationDataSource.insertNotification(
-                    Notification(
-                        id = generateUniqueId(),
-                        userId = request.idFriend,
-                        type = 2,
-                        body = "Обновление списка друзей",
-                        isShow = false,
+            withContext(Dispatchers.IO) {
+                val respond = userDataSource.delFriendUser(request.idUser, request.idFriend)
+                if (respond.matchedCount > 0) {
+                    notificationDataSource.insertNotification(
+                        Notification(
+                            id = generateUniqueId(),
+                            userId = request.idFriend,
+                            type = 2,
+                            body = "Обновление списка друзей",
+                            isShow = false,
+                        )
                     )
-                )
-                call.respond(HttpStatusCode.OK, "Пользователь успешно удален")
-            } else
-                call.respond(HttpStatusCode.Conflict, "Пользователь не удален. Попробуйте еще раз")
+                    call.respond(HttpStatusCode.OK, "Пользователь успешно удален")
+                } else
+                    call.respond(HttpStatusCode.Conflict, "Пользователь не удален. Попробуйте еще раз")
+            }
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Ошибка при десериализации тела запроса: ${e.message}")
         }
     }
 }
-
-//try {
-//    val myData = call.receive<MyData>()
-//    // делайте что-то с переменной myData
-//} catch (e: Exception) {
-//    call.respond(HttpStatusCode.BadRequest, "Ошибка при десериализации тела запроса: ${e.message}")
-//}

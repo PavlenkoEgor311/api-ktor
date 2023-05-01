@@ -42,4 +42,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
     implementation("org.litote.kmongo:kmongo-coroutine:$kmongo_version")
     implementation("commons-codec:commons-codec:$commons_codec_version")
+    implementation("io.ktor:ktor-server-status-pages:$ktor_version")
 }

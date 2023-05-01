@@ -11,14 +11,19 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 fun Route.getAllNotes(noteDataSource: NoteDataSource) {
     get("getallnote") {
+        val allNotes = withContext(Dispatchers.IO) {
+            noteDataSource.getAllNotes()
+        }
         val json = buildJsonArray {
-            noteDataSource.getAllNotes().forEach { note ->
+            allNotes.forEach { note ->
                 add(buildJsonObject {
                     put("id", note.id)
                     put("parentId", note.idParent)
@@ -57,20 +62,24 @@ fun Route.insertNote(noteSource: NoteDataSource, notificationDataSource: Notific
             call.respond(HttpStatusCode.BadRequest, "Not valid note")
             return@post
         }
-        val wasAcknowledged = noteSource.insertNote(note)
+        val wasAcknowledged = withContext(Dispatchers.IO) {
+            noteSource.insertNote(note)
+        }
         if (!wasAcknowledged) {
             call.respond(HttpStatusCode.BadRequest)
         } else {
-            note.friendsId?.forEach { userId ->
-                notificationDataSource.insertNotification(
-                    Notification(
-                        id = generateUniqueId(),
-                        userId = userId,
-                        type = 1,
-                        body = "Новая коллективная задача. Проверьте список задач",
-                        isShow = false,
+            withContext(Dispatchers.IO) {
+                note.friendsId?.forEach { userId ->
+                    notificationDataSource.insertNotification(
+                        Notification(
+                            id = generateUniqueId(),
+                            userId = userId,
+                            type = 1,
+                            body = "Новая коллективная задача. Проверьте список задач",
+                            isShow = false,
+                        )
                     )
-                )
+                }
             }
             call.respond(HttpStatusCode.OK)
         }
@@ -84,7 +93,9 @@ fun Route.getNotesUser(noteDataSource: NoteDataSource) {
             "Not valid id"
         )
 
-        val notes = noteDataSource.getNotesUser(id)
+        val notes = withContext(Dispatchers.IO) {
+            noteDataSource.getNotesUser(id)
+        }
         call.respond(HttpStatusCode.OK, buildJsonArray {
             notes.forEach { note ->
                 add(buildJsonObject {
@@ -124,18 +135,20 @@ fun Route.updateNote(noteDataSource: NoteDataSource, notificationDataSource: Not
         if (!request.isValid())
             return@post call.respond(HttpStatusCode.BadRequest, "Not valid note")
 
-        val respond = noteDataSource.updateNote(request)
+        val respond = withContext(Dispatchers.IO) { noteDataSource.updateNote(request) }
         if (respond.matchedCount > 0) {
-            request.friendsId?.forEach { id ->
-                notificationDataSource.insertNotification(
-                    Notification(
-                        id = generateUniqueId(),
-                        userId = id,
-                        type = 2,
-                        body = "Обновление коллективной задачи. Проверьте изменения.",
-                        isShow = false,
+            withContext(Dispatchers.IO) {
+                request.friendsId?.forEach { id ->
+                    notificationDataSource.insertNotification(
+                        Notification(
+                            id = generateUniqueId(),
+                            userId = id,
+                            type = 2,
+                            body = "Обновление коллективной задачи. Проверьте изменения.",
+                            isShow = false,
+                        )
                     )
-                )
+                }
             }
             call.respond(HttpStatusCode.OK, "Success update note")
         } else

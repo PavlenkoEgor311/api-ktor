@@ -4,5 +4,6 @@ import java.util.*
 
 fun generateUniqueId(): Long {
     val uuid = UUID.randomUUID()
-    return uuid.mostSignificantBits xor uuid.leastSignificantBits
+    val id = uuid.mostSignificantBits xor uuid.leastSignificantBits
+    return if (id < 0) id * (-1) else id
 }

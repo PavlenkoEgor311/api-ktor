@@ -4,7 +4,6 @@ val logback_version: String by project
 val kmongo_version: String by project
 val kotlinx_coroutines_version: String by project
 val commons_codec_version: String by project
-val firebase_version: String by project
 
 plugins {
     kotlin("jvm") version "1.8.10"
@@ -43,8 +42,4 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines_version")
     implementation("org.litote.kmongo:kmongo-coroutine:$kmongo_version")
     implementation("commons-codec:commons-codec:$commons_codec_version")
-
-    implementation("com.google.firebase:firebase-admin:$firebase_version")
-    implementation("com.google.firebase:firebase-functions:$firebase_version")
-
 }

@@ -8,6 +8,6 @@ data class User(
     var userPassword: String,
     var salt: String,
     var login: String,
-    val listIdFriend: MutableList<Long>,
+    var listIdFriend: MutableList<Long>,
     val listIdNote: MutableList<Long>,
 )

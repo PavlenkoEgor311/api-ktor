@@ -43,4 +43,8 @@ dependencies {
     implementation("org.litote.kmongo:kmongo-coroutine:$kmongo_version")
     implementation("commons-codec:commons-codec:$commons_codec_version")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
+    implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
+    implementation ("com.fasterxml.jackson.core:jackson-core:2.12.5")
+    implementation ("com.fasterxml.jackson.core:jackson-databind:2.12.5")
+    implementation ("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
 }

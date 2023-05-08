@@ -158,7 +158,13 @@ fun Route.updateNote(noteDataSource: NoteDataSource, notificationDataSource: Not
 
 fun Route.test() {
     get("test") {
-        call.respondText("Hello, дебил!")
+        call.respond(HttpStatusCode.OK, message = "Hello, дебил!")
+    }
+}
+
+fun Route.default() {
+    get("/") {
+        call.respond(HttpStatusCode.OK, message = "my_note_server, welcome")
     }
 }
 

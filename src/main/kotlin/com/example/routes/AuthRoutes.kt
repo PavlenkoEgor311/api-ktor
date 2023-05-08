@@ -5,9 +5,7 @@ import com.example.data.model.Notification
 import com.example.data.model.User
 import com.example.data.model.notification.NotificationDataSource
 import com.example.data.model.user.UserDataSource
-import com.example.data.model.user.request.AuthRequest
-import com.example.data.model.user.request.UpdateUserFriendsRequest
-import com.example.data.model.user.request.UpdateUserRequest
+import com.example.data.model.user.request.*
 import com.example.data.model.user.response.AuthResponse
 import com.example.security.hashing.HashingService
 import com.example.security.hashing.SaltHash
@@ -37,9 +35,9 @@ fun Route.singup(
             return@post
         }
         val areFieldsBlank = request.userName.isBlank() || request.password.isBlank()
-        val passShort = request.password.length < 8
-        if (userDataSource.getUserName(request.userName) != null) {
-            call.respond(HttpStatusCode.Conflict, "Username is already exists")
+        val passShort = request.password.length < 5
+        if (userDataSource.getUserName(request.userName) != null && userDataSource.getUserLogin(request.login) != null) {
+            call.respond(HttpStatusCode.Conflict, "Username or Login is already exists")
             return@post
         }
         if (areFieldsBlank || passShort) {
@@ -83,11 +81,11 @@ fun Route.signIn(
     tokenConfig: TokenConfig
 ) {
     post("signin") {
-        val request = call.receiveOrNull<AuthRequest>() ?: kotlin.run {
+        val request = call.receiveOrNull<LoginRequest>() ?: kotlin.run {
             call.respond(HttpStatusCode.BadRequest)
             return@post
         }
-        val user = userDataSource.getUserName(request.userName)
+        val user = userDataSource.getUserLogin(request.login)
         if (user == null) {
             call.respond(HttpStatusCode.Conflict, "Incorrect username or password")
             return@post
@@ -116,8 +114,9 @@ fun Route.signIn(
 
         call.respond(
             status = HttpStatusCode.OK,
-            message = AuthResponse(
-                token = token
+            LoginResponse(
+                token = token,
+                idUser = user.id,
             )
         )
     }

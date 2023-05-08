@@ -13,4 +13,6 @@ interface IUserDataSource {
     suspend fun updateUserData(user: UpdateUserRequest, hashingService: HashingService): UpdateResult
     suspend fun addFriendUser(idUser: Long, idFriend: Long): UpdateResult
     suspend fun delFriendUser(idUser: Long, idFriend: Long): UpdateResult
+    suspend fun getUserLogin(login: String): User?
+    suspend fun isAuthUser(login: String, password: String): User?
 }

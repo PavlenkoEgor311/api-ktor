@@ -46,7 +46,6 @@ class NoteDataSource(db: CoroutineDatabase) : IDataNoteSource {
         )
     }
 
-
     override suspend fun getNoteById(id: Long): GlobalNote? =
         notes.findOne(GlobalNote::id eq id)
 
@@ -62,6 +61,4 @@ class NoteDataSource(db: CoroutineDatabase) : IDataNoteSource {
             )
         } else throw NotFoundException()
     }
-
-
 }

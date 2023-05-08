@@ -10,10 +10,12 @@ import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.toList
 import org.litote.kmongo.eq
 
-class UserDataSource(private val db: CoroutineDatabase) : IUserDataSource {
+class UserDataSource(db: CoroutineDatabase) : IUserDataSource {
 
     private val users = db.getCollection<User>("user")
     override suspend fun getUserName(name: String): User? = users.findOne(User::userName eq name)
+    override suspend fun getUserLogin(login: String): User? = users.findOne(User::login eq login)
+    override suspend fun isAuthUser(login: String, password:String): User? = users.findOne(User::login eq login, User::userPassword eq password)
     override suspend fun insertUser(user: User): Boolean = users.insertOne(user).wasAcknowledged()
     override suspend fun getAllUsers() = users.collection.find().toList()
     override suspend fun getUserById(id: Long): User? = users.findOne(User::id eq id)
@@ -33,6 +35,7 @@ class UserDataSource(private val db: CoroutineDatabase) : IUserDataSource {
             )
         } else throw NotFoundException()
     }
+
     override suspend fun addFriendUser(idUser: Long, idFriend: Long): UpdateResult {
         val currentUser = users.findOne(User::id eq idUser)
         val friend = users.findOne(User::id eq idFriend)
@@ -49,6 +52,7 @@ class UserDataSource(private val db: CoroutineDatabase) : IUserDataSource {
             }
         } else throw NotFoundException()
     }
+
     override suspend fun delFriendUser(idUser: Long, idFriend: Long): UpdateResult {
         val currentUser = users.findOne(User::id eq idUser)
         val friend = users.findOne(User::id eq idFriend)

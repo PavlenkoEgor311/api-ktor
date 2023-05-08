@@ -4,6 +4,7 @@ val logback_version: String by project
 val kmongo_version: String by project
 val kotlinx_coroutines_version: String by project
 val commons_codec_version: String by project
+val jackon_version: String by project
 
 plugins {
     kotlin("jvm") version "1.8.10"
@@ -43,8 +44,8 @@ dependencies {
     implementation("org.litote.kmongo:kmongo-coroutine:$kmongo_version")
     implementation("commons-codec:commons-codec:$commons_codec_version")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
-    implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
-    implementation ("com.fasterxml.jackson.core:jackson-core:2.12.5")
-    implementation ("com.fasterxml.jackson.core:jackson-databind:2.12.5")
-    implementation ("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
+    implementation ("io.ktor:ktor-serialization-jackson:$ktor_version")
+    implementation("com.fasterxml.jackson.core:jackson-core:$jackon_version")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jackon_version")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackon_version")
 }

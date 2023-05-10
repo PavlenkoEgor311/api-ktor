@@ -15,4 +15,5 @@ interface IUserDataSource {
     suspend fun delFriendUser(idUser: Long, idFriend: Long): UpdateResult
     suspend fun getUserLogin(login: String): User?
     suspend fun isAuthUser(login: String, password: String): User?
+    suspend fun findFriend(idUser: Long, userName: String): List<User>
 }

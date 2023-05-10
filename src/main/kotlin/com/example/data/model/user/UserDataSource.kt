@@ -3,6 +3,7 @@ package com.example.data.model.user
 import com.example.data.model.User
 import com.example.data.model.user.request.UpdateUserRequest
 import com.example.security.hashing.HashingService
+import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.result.UpdateResult
 import io.ktor.server.plugins.*
@@ -15,7 +16,9 @@ class UserDataSource(db: CoroutineDatabase) : IUserDataSource {
     private val users = db.getCollection<User>("user")
     override suspend fun getUserName(name: String): User? = users.findOne(User::userName eq name)
     override suspend fun getUserLogin(login: String): User? = users.findOne(User::login eq login)
-    override suspend fun isAuthUser(login: String, password:String): User? = users.findOne(User::login eq login, User::userPassword eq password)
+    override suspend fun isAuthUser(login: String, password: String): User? =
+        users.findOne(User::login eq login, User::userPassword eq password)
+
     override suspend fun insertUser(user: User): Boolean = users.insertOne(user).wasAcknowledged()
     override suspend fun getAllUsers() = users.collection.find().toList()
     override suspend fun getUserById(id: Long): User? = users.findOne(User::id eq id)
@@ -23,7 +26,6 @@ class UserDataSource(db: CoroutineDatabase) : IUserDataSource {
         val currentUser = users.findOne(User::id eq user.id)
         val hashing = hashingService.generateSaltHash(user.password!!)
         if (currentUser != null) {
-            currentUser.login = user.login!!
             currentUser.userName = user.username!!
             currentUser.userPassword = hashing.hash
             currentUser.salt = hashing.salt
@@ -67,6 +69,15 @@ class UserDataSource(db: CoroutineDatabase) : IUserDataSource {
                     options = UpdateOptions().upsert(false),
                 )
             }
+        } else throw NotFoundException()
+    }
+
+    override suspend fun findFriend(idUser: Long, userName: String): List<User> {
+        val currentUser = users.findOne(User::id eq idUser)
+        if (currentUser != null) {
+            val filter = Filters.regex("userName", ".*$userName.*", "i")
+            val findUsers = users.find(filter = filter).toList()
+            return findUsers.filter { it.id !in currentUser.listIdFriend && it.id != idUser }
         } else throw NotFoundException()
     }
 }

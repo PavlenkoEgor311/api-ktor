@@ -189,10 +189,7 @@ fun Route.updateUser(
             call.respond(HttpStatusCode.BadRequest, "Not valid")
             return@post
         }
-        if (request.login.isNullOrEmpty() ||
-            request.username.isNullOrEmpty() ||
-            request.password.isNullOrEmpty()
-        )
+        if (request.username.isNullOrEmpty() || request.password.isNullOrEmpty())
             return@post call.respond(HttpStatusCode.BadRequest, "Not valid user data")
 
         val respond = userDataSource.updateUserData(request, hashingService)
@@ -246,6 +243,26 @@ fun Route.updateListFriend(userDataSource: UserDataSource, notificationDataSourc
             }
         } catch (e: Exception) {
             call.respond(HttpStatusCode.BadRequest, "Ошибка при десериализации тела запроса: ${e.message}")
+        }
+    }
+}
+
+fun Route.findFriend(userDataSource: UserDataSource) {
+    get("findUser") {
+        val request = call.receiveOrNull<FindUserRequest>() ?: kotlin.run {
+            call.respond(HttpStatusCode.BadRequest, "Not valid")
+            return@get
+        }
+        val findUsers = userDataSource.findFriend(request.userId, request.username)
+        if (findUsers.isEmpty()) {
+            call.respond(HttpStatusCode.OK, "Пользователи не найдены")
+        } else {
+            call.respond(HttpStatusCode.OK, buildJsonObject {
+                findUsers.forEach { user ->
+                    put("id", user.id)
+                    put("username", user.userName)
+                }
+            })
         }
     }
 }

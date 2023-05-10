@@ -6,6 +6,11 @@ import kotlinx.serialization.Serializable
 data class UpdateUserRequest(
     val id: Long,
     val username: String?,
-    val login: String?,
     val password: String?,
+)
+
+@Serializable
+data class FindUserRequest(
+    val userId: Long,
+    val username: String,
 )

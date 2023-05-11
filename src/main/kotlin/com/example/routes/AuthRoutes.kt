@@ -222,7 +222,7 @@ fun Route.updateListFriend(userDataSource: UserDataSource, notificationDataSourc
             call.respond(HttpStatusCode.BadRequest, "Ошибка при десериализации тела запроса: ${e.message}")
         }
     }
-    delete("delFriend") {
+    post("delFriend") {
         try {
             val request = call.receive<UpdateUserFriendsRequest>()
             withContext(Dispatchers.IO) {
@@ -255,7 +255,7 @@ fun Route.findFriend(userDataSource: UserDataSource) {
         }
         val findUsers = userDataSource.findFriend(request.userId, request.username)
         if (findUsers.isEmpty()) {
-            call.respond(HttpStatusCode.OK, "Пользователи не найдены")
+            call.respond(HttpStatusCode.OK, buildJsonArray {  })
         } else {
             call.respond(HttpStatusCode.OK, buildJsonArray {
                 findUsers.forEach { user ->
@@ -277,7 +277,7 @@ fun Route.getFriendsList(userDataSource: UserDataSource) {
         }
         val myFriends = userDataSource.getListFriends(request.map { it.userId })
         if (myFriends.isEmpty()) {
-            call.respond(HttpStatusCode.OK, "Пользователи не найдены")
+            call.respond(HttpStatusCode.OK, buildJsonArray {  })
         } else {
             call.respond(HttpStatusCode.OK, buildJsonArray {
                 myFriends.forEach { user ->

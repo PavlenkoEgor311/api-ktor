@@ -257,10 +257,12 @@ fun Route.findFriend(userDataSource: UserDataSource) {
         if (findUsers.isEmpty()) {
             call.respond(HttpStatusCode.OK, "Пользователи не найдены")
         } else {
-            call.respond(HttpStatusCode.OK, buildJsonObject {
-                findUsers.forEach { user ->
-                    put("id", user.id)
-                    put("username", user.userName)
+            call.respond(HttpStatusCode.OK, buildJsonArray {
+                buildJsonObject {
+                    findUsers.forEach { user ->
+                        put("id", user.id)
+                        put("username", user.userName)
+                    }
                 }
             })
         }
@@ -277,10 +279,12 @@ fun Route.getFriendsList(userDataSource: UserDataSource) {
         if (myFriends.isEmpty()){
             call.respond(HttpStatusCode.OK, "Пользователи не найдены")
         }else{
-            call.respond(HttpStatusCode.OK, buildJsonObject {
-                myFriends.forEach { user ->
-                    put("id", user.userId)
-                    put("username", user.username)
+            call.respond(HttpStatusCode.OK, buildJsonArray {
+                buildJsonObject {
+                    myFriends.forEach { user ->
+                        put("id", user.userId)
+                        put("username", user.username)
+                    }
                 }
             })
         }

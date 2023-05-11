@@ -258,11 +258,11 @@ fun Route.findFriend(userDataSource: UserDataSource) {
             call.respond(HttpStatusCode.OK, "Пользователи не найдены")
         } else {
             call.respond(HttpStatusCode.OK, buildJsonArray {
-                buildJsonObject {
-                    findUsers.forEach { user ->
+                findUsers.forEach { user ->
+                    add(buildJsonObject {
                         put("id", user.id)
                         put("username", user.userName)
-                    }
+                    })
                 }
             })
         }
@@ -276,15 +276,15 @@ fun Route.getFriendsList(userDataSource: UserDataSource) {
             return@post
         }
         val myFriends = userDataSource.getListFriends(request.map { it.userId })
-        if (myFriends.isEmpty()){
+        if (myFriends.isEmpty()) {
             call.respond(HttpStatusCode.OK, "Пользователи не найдены")
-        }else{
+        } else {
             call.respond(HttpStatusCode.OK, buildJsonArray {
-                buildJsonObject {
-                    myFriends.forEach { user ->
+                myFriends.forEach { user ->
+                    add(buildJsonObject {
                         put("id", user.userId)
                         put("username", user.username)
-                    }
+                    })
                 }
             })
         }

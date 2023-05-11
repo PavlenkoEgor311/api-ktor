@@ -36,5 +36,6 @@ fun Application.configureRouting(
         updateListFriend(userDataSource, notificationDataSource)
         default()
         findFriend(userDataSource)
+        getFriendsList(userDataSource)
     }
 }

@@ -14,3 +14,8 @@ data class FindUserRequest(
     val userId: Long,
     val username: String,
 )
+
+@Serializable
+data class UserFriendId(
+    val userId: Long,
+)

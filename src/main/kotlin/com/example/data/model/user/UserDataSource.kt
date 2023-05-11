@@ -1,6 +1,7 @@
 package com.example.data.model.user
 
 import com.example.data.model.User
+import com.example.data.model.user.request.FindUserRequest
 import com.example.data.model.user.request.UpdateUserRequest
 import com.example.security.hashing.HashingService
 import com.mongodb.client.model.Filters
@@ -79,5 +80,15 @@ class UserDataSource(db: CoroutineDatabase) : IUserDataSource {
             val findUsers = users.find(filter = filter).toList()
             return findUsers.filter { it.id !in currentUser.listIdFriend && it.id != idUser }
         } else throw NotFoundException()
+    }
+
+    override suspend fun getListFriends(listIdFriend: List<Long>): List<FindUserRequest> {
+        return listIdFriend.mapNotNull {
+            val myFriend = users.findOne(User::id eq it)
+            if (myFriend != null)
+                FindUserRequest(myFriend.id, myFriend.userName)
+            else
+                null
+        }
     }
 }

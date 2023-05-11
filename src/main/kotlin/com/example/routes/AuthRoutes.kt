@@ -248,10 +248,10 @@ fun Route.updateListFriend(userDataSource: UserDataSource, notificationDataSourc
 }
 
 fun Route.findFriend(userDataSource: UserDataSource) {
-    get("findUser") {
+    post("findUser") {
         val request = call.receiveOrNull<FindUserRequest>() ?: kotlin.run {
             call.respond(HttpStatusCode.BadRequest, "Not valid")
-            return@get
+            return@post
         }
         val findUsers = userDataSource.findFriend(request.userId, request.username)
         if (findUsers.isEmpty()) {
@@ -261,6 +261,26 @@ fun Route.findFriend(userDataSource: UserDataSource) {
                 findUsers.forEach { user ->
                     put("id", user.id)
                     put("username", user.userName)
+                }
+            })
+        }
+    }
+}
+
+fun Route.getFriendsList(userDataSource: UserDataSource) {
+    post("getListFriends") {
+        val request = call.receiveOrNull<List<UserFriendId>>() ?: kotlin.run {
+            call.respond(HttpStatusCode.BadRequest, "Not valid")
+            return@post
+        }
+        val myFriends = userDataSource.getListFriends(request.map { it.userId })
+        if (myFriends.isEmpty()){
+            call.respond(HttpStatusCode.OK, "Пользователи не найдены")
+        }else{
+            call.respond(HttpStatusCode.OK, buildJsonObject {
+                myFriends.forEach { user ->
+                    put("id", user.userId)
+                    put("username", user.username)
                 }
             })
         }

@@ -43,7 +43,7 @@ class UserDataSource(db: CoroutineDatabase) : IUserDataSource {
         val currentUser = users.findOne(User::id eq idUser)
         val friend = users.findOne(User::id eq idFriend)
         if (currentUser != null && friend != null) {
-            if (currentUser.listIdFriend.contains(idFriend)) {
+            if (idFriend in currentUser.listIdFriend) {
                 throw BadRequestException("Пользователь уже добавлен")
             } else {
                 currentUser.listIdFriend.add(idFriend)
@@ -60,7 +60,7 @@ class UserDataSource(db: CoroutineDatabase) : IUserDataSource {
         val currentUser = users.findOne(User::id eq idUser)
         val friend = users.findOne(User::id eq idFriend)
         if (currentUser != null && friend != null) {
-            if (currentUser.listIdFriend.contains(idFriend)) {
+            if (idFriend !in currentUser.listIdFriend) {
                 throw BadRequestException("Пользователь уже удален")
             } else {
                 currentUser.listIdFriend.remove(idFriend)

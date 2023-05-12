@@ -100,7 +100,7 @@ fun Route.getNotesUser(noteDataSource: NoteDataSource) {
             notes.forEach { note ->
                 add(buildJsonObject {
                     put("id", note.id)
-                    put("parentId", note.idParent)
+                    put("idParent", note.idParent)
                     put("title", note.title)
                     put("description", note.description)
                     put("date", note.date)

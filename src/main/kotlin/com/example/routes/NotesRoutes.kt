@@ -105,7 +105,7 @@ fun Route.getNotesUser(noteDataSource: NoteDataSource) {
                     put("description", note.description)
                     put("date", note.date)
                     put("status", note.status)
-                    put("friendsID", buildJsonArray {
+                    put("friendsId", buildJsonArray {
                         note.friendsId?.forEach { id ->
                             add(buildJsonObject {
                                 put("id", id)
